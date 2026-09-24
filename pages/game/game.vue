@@ -8,7 +8,12 @@
 
 		<!-- 看图区 -->
 		<view class="picture">
-			<image v-if="level.img" class="picture-img" :src="level.img" mode="aspectFit"></image>
+			<image
+				v-if="level.img && !imgError"
+				class="picture-img"
+				:src="level.img"
+				mode="aspectFit"
+				@error="imgError = true"></image>
 			<text v-else class="picture-emoji">{{level.pic}}</text>
 		</view>
 
@@ -71,7 +76,8 @@
 				answerChars: [],
 				slots: [],       // { char, from, locked }
 				candidates: [],  // { char, used }
-				modal: { show: false, title: '' }
+				modal: { show: false, title: '' },
+				imgError: false
 			}
 		},
 		computed: {
@@ -104,6 +110,7 @@
 			loadLevel(id) {
 				const level = IDIOMS.find(l => l.id === id) || IDIOMS[0]
 				this.level = level
+				this.imgError = false
 				this.answerChars = level.word.split('')
 				this.slots = this.answerChars.map(() => ({ char: '', from: -1, locked: false }))
 				this.candidates = this.buildCandidates(this.answerChars)
