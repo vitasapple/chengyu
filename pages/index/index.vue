@@ -3,6 +3,17 @@
 		<view class="header">
 			<text class="title">看图猜成语</text>
 			<text class="subtitle">已通关 {{passedCount}} / {{levels.length}}</text>
+
+			<!-- 金币栏：余额 / 签到 / 每日一题 -->
+			<view class="coinbar">
+				<text class="coin-pill">🪙 {{coins}}</text>
+				<view class="coin-btn" :class="{'btn-off': sign.signedToday}" @tap="onSign">
+					{{sign.signedToday ? '今日已签' : '签到 +' + sign.nextReward}}
+				</view>
+				<view class="coin-btn btn-daily" :class="{'btn-off': daily.doneToday}" @tap="onDaily">
+					{{daily.doneToday ? '每日题 ✓ 连击' + daily.streak : '每日一题 🔥' + daily.streak}}
+				</view>
+			</view>
 		</view>
 
 		<view class="grid">
@@ -22,11 +33,15 @@
 <script>
 	import { IDIOMS } from '@/common/idioms.js'
 	import { isPassed, isUnlocked } from '@/common/storage.js'
+	import { getCoins, getSignInfo, signIn, getDailyInfo } from '@/common/coins.js'
 
 	export default {
 		data() {
 			return {
-				levels: IDIOMS
+				levels: IDIOMS,
+				coins: 0,
+				sign: { signedToday: false, streak: 0, nextReward: 10 },
+				daily: { doneToday: false, streak: 0 }
 			}
 		},
 		computed: {
@@ -35,10 +50,32 @@
 			}
 		},
 		onShow() {
-			// 每次回到首页刷新解锁/通关状态
+			// 每次回到首页刷新解锁/通关状态与金币入口
+			this.refreshWallet()
 			this.$forceUpdate()
 		},
 		methods: {
+			refreshWallet() {
+				this.coins = getCoins()
+				this.sign = getSignInfo()
+				this.daily = getDailyInfo()
+			},
+			onSign() {
+				const res = signIn()
+				if (res.ok) {
+					uni.showToast({ title: `签到成功 +${res.coins}🪙（连签${res.streak}天）`, icon: 'none' })
+					this.refreshWallet()
+				} else {
+					uni.showToast({ title: '今天已经签过啦，明天再来', icon: 'none' })
+				}
+			},
+			onDaily() {
+				if (this.daily.doneToday) {
+					uni.showToast({ title: '今日挑战已完成，明天再来', icon: 'none' })
+					return
+				}
+				uni.navigateTo({ url: '/pages/game/game?mode=daily' })
+			},
 			cellClass(item) {
 				return {
 					'is-locked': !isUnlocked(item.id),
@@ -89,6 +126,43 @@
 		color: #a08a68;
 	}
 
+	/* 金币栏 */
+	.coinbar {
+		margin-top: 24rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 16rpx;
+	}
+
+	.coin-pill {
+		font-size: 28rpx;
+		font-weight: bold;
+		color: #b8860b;
+		background: #fff6dd;
+		border: 2rpx solid #eeda9e;
+		border-radius: 30rpx;
+		padding: 8rpx 24rpx;
+	}
+
+	.coin-btn {
+		font-size: 26rpx;
+		color: #fff;
+		background: linear-gradient(90deg, #ffcf5c 0%, #ff9f43 100%);
+		border-radius: 30rpx;
+		padding: 10rpx 24rpx;
+		font-weight: bold;
+	}
+
+	.btn-daily {
+		background: linear-gradient(90deg, #7bc47f 0%, #4caf50 100%);
+	}
+
+	.btn-off {
+		background: #d9d2c0;
+		color: #8a8371;
+	}
+
 	.grid {
 		display: flex;
 		flex-wrap: wrap;
@@ -96,9 +170,13 @@
 	}
 
 	.cell {
-		width: 150rpx;
-		height: 150rpx;
-		margin: 15rpx;
+		/* 一行 4 列：25% 减去左右 margin，4 个正好占满一行 */
+		width: calc(25% - 24rpx);
+		margin: 12rpx;
+		/* 用 padding-top 保持正方形 */
+		height: 0;
+		padding-top: calc(25% - 24rpx);
+		box-sizing: border-box;
 		border-radius: 20rpx;
 		background: #fff;
 		box-shadow: 0 6rpx 16rpx rgba(150, 120, 70, 0.12);
@@ -109,7 +187,14 @@
 		position: relative;
 	}
 
+	/* padding-top 撑高度时，内容需要绝对定位居中 */
 	.cell-id {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		right: 0;
+		transform: translateY(-50%);
+		text-align: center;
 		font-size: 44rpx;
 		font-weight: bold;
 		color: #6b4f2a;
