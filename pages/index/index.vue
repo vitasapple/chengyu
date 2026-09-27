@@ -4,15 +4,10 @@
 			<text class="title">看图猜成语</text>
 			<text class="subtitle">已通关 {{passedCount}} / {{levels.length}}</text>
 
-			<!-- 金币栏：余额 / 签到 / 每日一题 -->
-			<view class="coinbar">
+			<!-- 金币栏：余额入口交给「我的」，首页只展示 -->
+			<view class="coinbar" @tap="goMe">
 				<text class="coin-pill">🪙 {{coins}}</text>
-				<view class="coin-btn" :class="{'btn-off': sign.signedToday}" @tap="onSign">
-					{{sign.signedToday ? '今日已签' : '签到 +' + sign.nextReward}}
-				</view>
-				<view class="coin-btn btn-daily" :class="{'btn-off': daily.doneToday}" @tap="onDaily">
-					{{daily.doneToday ? '每日题 ✓ 连击' + daily.streak : '每日一题 🔥' + daily.streak}}
-				</view>
+				<text class="coin-more">签到 / 战绩 ›</text>
 			</view>
 		</view>
 
@@ -32,49 +27,30 @@
 
 <script>
 	import { IDIOMS } from '@/common/idioms.js'
-	import { isPassed, isUnlocked } from '@/common/storage.js'
-	import { getCoins, getSignInfo, signIn, getDailyInfo } from '@/common/coins.js'
+	import { isPassed, isUnlocked, getPassed } from '@/common/storage.js'
+	import { getCoins } from '@/common/coins.js'
 
 	export default {
 		data() {
 			return {
 				levels: IDIOMS,
 				coins: 0,
-				sign: { signedToday: false, streak: 0, nextReward: 10 },
-				daily: { doneToday: false, streak: 0 }
-			}
-		},
-		computed: {
-			passedCount() {
-				return this.levels.filter(l => isPassed(l.id)).length
+				passedCount: 0
 			}
 		},
 		onShow() {
-			// 每次回到首页刷新解锁/通关状态与金币入口
-			this.refreshWallet()
-			this.$forceUpdate()
+			// 每次回到首页刷新解锁/通关状态与金币余额
+			this.refresh()
 		},
 		methods: {
-			refreshWallet() {
+			refresh() {
 				this.coins = getCoins()
-				this.sign = getSignInfo()
-				this.daily = getDailyInfo()
+				// 通关与解锁都存于本地 storage，非响应式，取完强制重渲染
+				this.passedCount = getPassed().length
+				this.$forceUpdate()
 			},
-			onSign() {
-				const res = signIn()
-				if (res.ok) {
-					uni.showToast({ title: `签到成功 +${res.coins}🪙（连签${res.streak}天）`, icon: 'none' })
-					this.refreshWallet()
-				} else {
-					uni.showToast({ title: '今天已经签过啦，明天再来', icon: 'none' })
-				}
-			},
-			onDaily() {
-				if (this.daily.doneToday) {
-					uni.showToast({ title: '今日挑战已完成，明天再来', icon: 'none' })
-					return
-				}
-				uni.navigateTo({ url: '/pages/game/game?mode=daily' })
+			goMe() {
+				uni.switchTab({ url: '/pages/me/me' })
 			},
 			cellClass(item) {
 				return {
@@ -145,22 +121,9 @@
 		padding: 8rpx 24rpx;
 	}
 
-	.coin-btn {
-		font-size: 26rpx;
-		color: #fff;
-		background: linear-gradient(90deg, #ffcf5c 0%, #ff9f43 100%);
-		border-radius: 30rpx;
-		padding: 10rpx 24rpx;
-		font-weight: bold;
-	}
-
-	.btn-daily {
-		background: linear-gradient(90deg, #7bc47f 0%, #4caf50 100%);
-	}
-
-	.btn-off {
-		background: #d9d2c0;
-		color: #8a8371;
+	.coin-more {
+		font-size: 24rpx;
+		color: #a08a68;
 	}
 
 	.grid {

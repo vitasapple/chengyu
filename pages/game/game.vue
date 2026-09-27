@@ -340,8 +340,9 @@
 				}
 			},
 
+			/* 首页是 tabBar 页，必须用 switchTab */
 			goHome() {
-				uni.reLaunch({ url: '/pages/index/index' })
+				uni.switchTab({ url: '/pages/index/index' })
 			},
 
 			goNext() {

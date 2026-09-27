@@ -7,9 +7,33 @@
 			}
 		},
 		{
+			"path": "pages/hub/hub",
+			"style": {
+				"navigationBarTitleText": "玩法合集"
+			}
+		},
+		{
+			"path": "pages/me/me",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		},
+		{
 			"path": "pages/game/game",
 			"style": {
 				"navigationBarTitleText": "猜一猜"
+			}
+		},
+		{
+			"path": "pages/zhaocha/zhaocha",
+			"style": {
+				"navigationBarTitleText": "找茬达人"
+			}
+		},
+		{
+			"path": "pages/lianlian/lianlian",
+			"style": {
+				"navigationBarTitleText": "文字连连看"
 			}
 		}
 	],
@@ -18,6 +42,32 @@
 		"navigationBarTitleText": "看图猜成语",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#a08a68",
+		"selectedColor": "#6b4f2a",
+		"backgroundColor": "#fffdf7",
+		"borderStyle": "black",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "闯关",
+				"iconPath": "static/tabbar/index.png",
+				"selectedIconPath": "static/tabbar/index-active.png"
+			},
+			{
+				"pagePath": "pages/hub/hub",
+				"text": "合集",
+				"iconPath": "static/tabbar/hub.png",
+				"selectedIconPath": "static/tabbar/hub-active.png"
+			},
+			{
+				"pagePath": "pages/me/me",
+				"text": "我的",
+				"iconPath": "static/tabbar/me.png",
+				"selectedIconPath": "static/tabbar/me-active.png"
+			}
+		]
 	},
 	"uniIdRouter": {}
 }
