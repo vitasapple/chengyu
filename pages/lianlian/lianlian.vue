@@ -72,7 +72,7 @@
 <script>
 	import { IDIOMS } from '@/common/idioms.js'
 	import {
-		buildRound, refillGroup, pickIdioms,
+		buildRound,
 		tryAppend, isChainDone, findHint
 	} from '@/common/lianlian.js'
 	import { getCoins, addCoins, REWARD } from '@/common/coins.js'
@@ -205,7 +205,7 @@
 				return '再试试'
 			},
 
-			/* 消除一组：置空字块 -> 计时 -> 原位补一个新成语 */
+			/* 消除一组：置空字块，消完 6 组即一轮结束（不再补位，避免新成语被秒点） */
 			clearGroup(groupId) {
 				const group = this.round.groups.find(g => g.id === groupId)
 				const cells = this.round.cells.map(c => Object.assign({}, c))
@@ -229,10 +229,11 @@
 					this.onRoundDone()
 					return
 				}
-				// 稍后再补位，让消除动效看得清
-				setTimeout(() => this.refill(groupId), 900)
+				// 消除后不再原位补新成语：补位会让整条新成语暴露在盘面上，可被直接连掉
+				// setTimeout(() => this.refill(groupId), 900)
 			},
 
+			/* 补位逻辑先行保留，玩法如需要再启用
 			refill(groupId) {
 				if (this.phase !== 'playing') return
 				// 尽量避开盘面上已有的成语，防止同字混淆
@@ -242,6 +243,7 @@
 				if (!fresh.length) return
 				this.round = refillGroup(this.round, groupId, fresh[0])
 			},
+			*/
 
 			onRoundDone() {
 				this.stopTimer()

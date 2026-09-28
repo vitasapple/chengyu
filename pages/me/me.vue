@@ -74,6 +74,7 @@
 		<!-- 设置 -->
 		<text class="group-title">设置</text>
 		<view class="card">
+			<!-- 音效功能暂未开发，先隐藏入口（逻辑与存储保留）
 			<view class="row">
 				<text class="row-ico">🔊</text>
 				<view class="row-main">
@@ -83,6 +84,7 @@
 				<switch :checked="settings.sound" color="#7bc47f" @change="onToggleSound" />
 			</view>
 			<view class="divider"></view>
+			-->
 			<view class="row" @tap="onAbout">
 				<text class="row-ico">ℹ️</text>
 				<view class="row-main">
